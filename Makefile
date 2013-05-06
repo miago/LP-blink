@@ -13,7 +13,8 @@ MCU        = msp430g2230
 # List all the source files here
 # eg if you have a source file foo.c then list it here
 SOURCES = main.c
-OTHERS = ../msp-lib/c/clock.c ../msp-lib/c/timerA0.c ../msp-lib/c/opMode.c ../msp-lib/c/launchpad.c
+OTHERS = ../msp-lib/c/clock.c ../msp-lib/c/timerA0.c ../msp-lib/c/opMode.c ../msp-lib/c/launchpad.c \
+	../msp-lib/c/inQueue.c
 # Include are located in the Include directory
 INCLUDES = -I../msp-lib/inc
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
