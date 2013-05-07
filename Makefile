@@ -12,14 +12,18 @@ TARGET     = main
 MCU        = msp430g2230
 # List all the source files here
 # eg if you have a source file foo.c then list it here
+TASKS = tasks/
 SOURCES = main.c
-OTHERS = ../msp-lib/c/clock.c ../msp-lib/c/timerA0.c ../msp-lib/c/opMode.c ../msp-lib/c/launchpad.c \
-	../msp-lib/c/inQueue.c ../msp-lib/c/scheduler.c ../msp-lib/c/task.c 
+SOURCES += $(TASKS)button.c
+LIB-FOLDER = ../msp-lib/c/
+OTHERS = $(LIB-FOLDER)clock.c $(LIB-FOLDER)timerA0.c $(LIB-FOLDER)opMode.c $(LIB-FOLDER)launchpad.c \
+	$(LIB-FOLDER)queue.c $(LIB-FOLDER)scheduler.c $(LIB-FOLDER)task.c 
 # Include are located in the Include directory
-INCLUDES = ../msp-lib/inc
+INCLUDES = -I../msp-lib/inc -Iinc/
+
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
 #######################################################################################
-CFLAGS   = -mmcu=$(MCU) -g -Os -Wall -Wunused -Wimplicit-function-declaration -I$(INCLUDES)
+CFLAGS   = -mmcu=$(MCU) -g -Os -Wall -Wunused -Wimplicit-function-declaration $(INCLUDES)
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(TARGET).map
 ########################################################################################
@@ -57,3 +61,6 @@ $(TARGET).elf: $(OBJECTS)
 flash:
 	mspdebug rf2500 "prog $(TARGET).elf"
 run: $(TARGET).elf flash
+clean: 
+	$(RM) $(TARGET).o $(TARGET).elf $(TARGET).map
+	$(RM) $(LIB-FOLDER)*.o $(TASKS)*.o
