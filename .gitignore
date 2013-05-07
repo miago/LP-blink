@@ -1,6 +1,11 @@
 # Object files
 *.o
 
+# Temp Files
+*.c~
+
+.map
+
 # Libraries
 *.lib
 *.a
@@ -15,3 +20,4 @@
 *.exe
 *.out
 *.app
+*.elf
