@@ -17,6 +17,7 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include <msp430.h>
 #include <clock.h>
 #include <timerA.h>
@@ -24,16 +25,19 @@
 #include <message.h>
 #include <queue.h>
 #include <task.h>
+#include <events.h>
 #include <scheduler.h>
 #include <button.h>
+#include <led.h>
+#include <users.h>
 
 unsigned int timerCount = 0;
 int main(void)
 {
-	initLeds();
         initQueue();
         initScheduler();
         initButton();
+        initLed();
 	disableWDT();// Stop watchdog timer
 
 	enableTimerA0CCInterrupt();
@@ -45,9 +49,10 @@ int main(void)
         
         message startMessage;
         startMessage.source = MSG_U_MAIN;
-        startMessage.destination = MSG_U_MAIN;
+        startMessage.destination = MSG_U_LED;
+        startMessage.id = LED_RED;
         startMessage.priority = MSG_P_0;
-        startMessage.event = MSG_EVT_ON;
+        startMessage.event = EVT_ON;
         putMessage(&startMessage);
 
 	__enable_interrupt();
@@ -64,7 +69,5 @@ int main(void)
 #pragma vector=TIMERA0_VECTOR
 __interrupt void Timer_A (void)
 {
-	timerCount = (timerCount + 1) % 8;
-	if(timerCount ==0)
-	P1OUT ^= (LED_0 + LED_1);
+        scheduler();
 }

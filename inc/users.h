@@ -17,12 +17,13 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __BUTTON__
-#define __BUTTON__
+#ifndef __USERS__
+#define __USERS__
 
-#include <message.h>
-
-void initButton();
-void buttonHandler( message *msg );
+//Message queue users
+#define MSG_U_UART      0 
+#define MSG_U_LED       1
+#define MSG_U_BUTTON    2
+#define MSG_U_MAIN      3
 
 #endif

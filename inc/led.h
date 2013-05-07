@@ -17,12 +17,21 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __BUTTON__
-#define __BUTTON__
+#ifndef __LED__
+#define __LED__
 
 #include <message.h>
+#include <msp430.h>
 
-void initButton();
-void buttonHandler( message *msg );
+#define LED_RED         0  
+#define LED_GREEN       1
+
+#define LED_0 BIT0 
+#define LED_1 BIT6
+#define LED_OUT P1OUT
+#define LED_DIR P1DIR
+
+void initLed();
+void ledHandler( message *msg );
 
 #endif

@@ -18,8 +18,17 @@
 */
 
 #include <task.h>
+#include <users.h>
 #include <button.h>
+#include <message.h>
 
 void initButton(){
-        
+      task buttonTask;
+      buttonTask.user = MSG_U_BUTTON;
+      buttonTask.handler = &buttonHandler;
+      registerTask( &buttonTask );
+}
+
+void buttonHandler( message *msg ){
+      
 }

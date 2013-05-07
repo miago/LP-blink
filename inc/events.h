@@ -1,6 +1,6 @@
 /*
 * This file is part of LP-blink
-* 
+*
 * Copyright (C) 2013 Mirco Gysin <miagox@gmail.com>
 *
 * This program is free software: you can redistribute it and/or modify
@@ -17,12 +17,14 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __BUTTON__
-#define __BUTTON__
+#ifndef __EVENTS__
+#define __EVENTS__
 
-#include <message.h>
+//message queue events
 
-void initButton();
-void buttonHandler( message *msg );
+#define EVT_ON          0
+#define EVT_OFF         1
+#define EVT_UNDEF       2
+#define EVT_TOGGLE      3
 
 #endif
