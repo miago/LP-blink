@@ -1,6 +1,6 @@
 /*
 * This file is part of LP-blink
-* 
+*
 * Copyright (C) 2013 Mirco Gysin <miagox@gmail.com>
 *
 * This program is free software: you can redistribute it and/or modify
@@ -30,40 +30,49 @@
 #include <button.h>
 #include <led.h>
 #include <users.h>
+#include <com_uart.h>
 
 void mainHandler( message *msg );
 
 message startMessage;
+message secondMessage;
 task mainTask;
 
-int main(void)
-{
-        initQueue();
-        initScheduler();
-        initButton();
-        initLed();
+int main( void ){
+	initQueue();
+	initScheduler();
+	initButton();
+	initLed();
+	initComUart();
 	disableWDT();// Stop watchdog timer
-        
-        mainTask.user = MSG_U_MAIN;
-        mainTask.handler = &mainHandler;
-        registerTask( &mainTask );
+
+	mainTask.user = MSG_U_MAIN;
+	mainTask.handler = &mainHandler;
+	registerTask( &mainTask );
 
 	enableTimerA0CCInterrupt();
-	setDCOCLK( DCO_16M );
-	setSMCLK( SMCLK_DCO, CLK_DIV_1 ); 	
+	setDCOCLK( DCO_1M );
+	setSMCLK( SMCLK_DCO, CLK_DIV_1 );
 	setTimerA0Mode( TAMODE_CONT );
 	setTimerA0ClockSource( TA_SMCLK );
 	setTimerA0Divider( TA_DIV_2 );
-        
-        startMessage.source = MSG_U_MAIN;
-        startMessage.destination = MSG_U_LED;
-        startMessage.id = LED_RED;
-        startMessage.priority = MSG_P_7;
-        startMessage.event = EVT_ON;
-        startMessage.processed = MSG_UNPROCESSED;
-        putMessage( &startMessage );
-        
-        scheduler();
+
+	startMessage.source = MSG_U_MAIN;
+	startMessage.destination = MSG_U_LED;
+	startMessage.id = ID_LED_RED;
+	startMessage.priority = MSG_P_7;
+	startMessage.event = EVT_ON;
+	startMessage.processed = MSG_UNPROCESSED;
+	putMessage( &startMessage );
+
+	secondMessage.destination = MSG_U_COM_UART;
+	secondMessage.id = MSG_ID_WELCOME;
+	secondMessage.processed = MSG_UNPROCESSED;
+	putMessage( &secondMessage );
+
+    scheduler();
+    scheduler();
+
 
 	__enable_interrupt();
 
@@ -72,10 +81,10 @@ int main(void)
 	while( 1 ){};
 
 	return 0;
-} 
+}
 
 void mainHandler( message *msg ){
-        
+
 }
 
 

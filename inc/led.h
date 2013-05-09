@@ -22,6 +22,8 @@
 
 #include <message.h>
 #include <msp430.h>
+#include <msp430g2553.h>
+
 
 #define ID_LED_GREEN    0
 #define ID_LED_RED      1  
@@ -32,7 +34,7 @@
 #define LED_OUT         P1OUT
 #define LED_DIR         P1DIR
 
-void initLed();
+void initLed(); 
 void ledHandler( message *msg );
 void ledOn( int id );
 void ledOff( int id );

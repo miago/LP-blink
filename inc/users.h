@@ -21,7 +21,7 @@
 #define __USERS__
 
 //Message queue users
-#define MSG_U_UART      0 
+#define MSG_U_COM_UART  0
 #define MSG_U_LED       1
 #define MSG_U_BUTTON    2
 #define MSG_U_MAIN      3

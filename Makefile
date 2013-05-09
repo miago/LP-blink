@@ -9,12 +9,12 @@
 # The TXT file is used for BSL loading, the ELF can be used for JTAG use
 # 
 TARGET     = main
-MCU        = msp430g2230
+MCU        = msp430g2553
 # List all the source files here
 # eg if you have a source file foo.c then list it here
 TASKS = tasks/
 SOURCES = main.c
-SOURCES += $(TASKS)button.c $(TASKS)led.c
+SOURCES += $(TASKS)button.c $(TASKS)led.c $(TASKS)com_uart.c
 LIB-FOLDER = ../msp-lib/c/
 OTHERS = $(LIB-FOLDER)clock.c $(LIB-FOLDER)timerA0.c $(LIB-FOLDER)opMode.c $(LIB-FOLDER)launchpad.c \
 	$(LIB-FOLDER)queue.c $(LIB-FOLDER)scheduler.c $(LIB-FOLDER)task.c 
@@ -23,7 +23,7 @@ INCLUDES = -I../msp-lib/inc -Iinc/
 
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
 #######################################################################################
-CFLAGS   = -mmcu=$(MCU) -g -O -ffunction-sections -fdata-sections -Wall -Wunused -Wimplicit-function-declaration $(INCLUDES)
+CFLAGS   = -mmcu=$(MCU) -g -c -Os -Wall -Wunused -Wimplicit-function-declaration $(INCLUDES)
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(TARGET).map
 OBJFLAGS = -dS 
@@ -50,10 +50,10 @@ MV       = mv
 OBJECTS = $(SOURCES:.c=.o)
 OBJECTS += $(OTHERS:.c=.o)
 
-all:  $(TARGET).elf
+all:  $(TARGET).elf $(TARGET).lst
 $(TARGET).elf: $(OBJECTS)
 	echo "Linking $@"
-	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 	echo
 	echo ">>>> Size of Firmware <<<<"
 	$(SIZE) $(TARGET).elf
@@ -65,10 +65,11 @@ flash:
 	mspdebug rf2500 "prog $(TARGET).elf"
 run: $(TARGET).elf flash
 clean: 
-	$(RM) $(TARGET).o $(TARGET).elf $(TARGET).map
+	$(RM) $(TARGET).o $(TARGET).elf $(TARGET).map $(TARGET).lst
 	$(RM) $(LIB-FOLDER)*.o $(TASKS)*.o $(LIB-FOLDER)*.lst $(TASKS)*.lst
-listing:
-	$(OBJDUMP) -Sd $(TARGET).elf> $(TARGET).lst
+%.lst: %.elf
+	echo "generate listning file for $<"
+	$(OBJDUMP) -Sd $<> $@
 server_d:
 	mspdebug rf2500 "prog $(TARGET).elf" gdb
 client_d:	
