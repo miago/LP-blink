@@ -22,9 +22,10 @@
 
 //message queue events
 
-#define EVT_ON          0
-#define EVT_OFF         1
-#define EVT_UNDEF       2
-#define EVT_TOGGLE      3
+#define EVT_NONE        0
+#define EVT_ON          1
+#define EVT_OFF         2
+#define EVT_UNDEF       3
+#define EVT_TOGGLE      4
 
 #endif

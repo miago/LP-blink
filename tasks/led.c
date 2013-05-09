@@ -23,18 +23,24 @@
 #include <message.h>
 #include <events.h>
 
+task ledTask;
+int error = 0;
+int pass = 0;
+
 void initLed(){
-        task ledTask;
         ledTask.user = MSG_U_LED;
         ledTask.handler = &ledHandler;
         if( registerTask( &ledTask ) != TASK_OK ){
+                error++;
         }
         
-        LED_DIR &= ~(LED_0 + LED_1); // Set P1.0 and P1.6 to output direction
-        LED_OUT |= (LED_0 + LED_1); // Set the LEDs off
+        LED_DIR |= ( LED_0 + LED_1 ); // Set P1.0 and P1.6 to output direction
+        LED_OUT &= ~( LED_0 + LED_1 ); // Set the LEDs off
 }
 
 void ledHandler( message *msg ){
+        pass++;
+        
         if( msg->event == EVT_OFF ){
                 if( msg->id == LED_RED ){
                         LED_OUT |= LED_RED;
@@ -48,4 +54,6 @@ void ledHandler( message *msg ){
                         LED_OUT &= ~LED_GREEN;
                 } 
         }
+        
+        msg->processed = 1;
 }

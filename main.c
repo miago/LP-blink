@@ -31,7 +31,11 @@
 #include <led.h>
 #include <users.h>
 
-unsigned int timerCount = 0;
+void mainHandler( message *msg );
+
+message startMessage;
+task mainTask;
+
 int main(void)
 {
         initQueue();
@@ -39,6 +43,10 @@ int main(void)
         initButton();
         initLed();
 	disableWDT();// Stop watchdog timer
+        
+        mainTask.user = MSG_U_MAIN;
+        mainTask.handler = &mainHandler;
+        registerTask( &mainTask );
 
 	enableTimerA0CCInterrupt();
 	setDCOCLK( DCO_16M );
@@ -47,27 +55,36 @@ int main(void)
 	setTimerA0ClockSource( TA_SMCLK );
 	setTimerA0Divider( TA_DIV_2 );
         
-        message startMessage;
         startMessage.source = MSG_U_MAIN;
         startMessage.destination = MSG_U_LED;
-        startMessage.id = LED_RED;
-        startMessage.priority = MSG_P_0;
-        startMessage.event = EVT_ON;
-        putMessage(&startMessage);
+        startMessage.id = LED_BOTH;
+        startMessage.priority = MSG_P_7;
+        startMessage.event = EVT_TOGGLE;
+        startMessage.processed = MSG_UNPROCESSED;
+        putMessage( &startMessage );
+        
+        scheduler();
 
 	__enable_interrupt();
 
-	__bis_SR_register(0x18); // LPM0 with interrupts enabled
+	__bis_SR_register( 0x18 ); // LPM0 with interrupts enabled
 
-	while(1){};
+	while( 1 ){};
 
 	return 0;
 } 
 
+void mainHandler( message *msg ){
+        
+}
+
 
 // Timer A0 interrupt service routine
 #pragma vector=TIMERA0_VECTOR
-__interrupt void Timer_A (void)
+__interrupt void Timer_A ( void )
 {
-        scheduler();
+//          scheduler();
+//         timerCount = (timerCount + 1) % 8;
+//         if(timerCount ==0)
+//         P1OUT ^= (LED_0 + LED_1);
 }

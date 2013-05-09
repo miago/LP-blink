@@ -23,9 +23,10 @@ INCLUDES = -I../msp-lib/inc -Iinc/
 
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
 #######################################################################################
-CFLAGS   = -mmcu=$(MCU) -g -Os -Wall -Wunused -Wimplicit-function-declaration $(INCLUDES)
+CFLAGS   = -mmcu=$(MCU) -g -O3 -ffunction-sections -fdata-sections -Wall -Wunused -Wimplicit-function-declaration $(INCLUDES)
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(TARGET).map
+OBJFLAGS = -dS 
 ########################################################################################
 CC       = msp430-gcc
 LD       = msp430-ld
@@ -34,6 +35,7 @@ AS       = msp430-gcc
 GASP     = msp430-gasp
 NM       = msp430-nm
 OBJCOPY  = msp430-objcopy
+OBJDUMP	 = msp430-objdump
 RANLIB   = msp430-ranlib
 STRIP    = msp430-strip
 SIZE     = msp430-size
@@ -43,6 +45,7 @@ CP       = cp -p
 RM       = rm -f
 MV       = mv
 ########################################################################################
+
 
 OBJECTS = $(SOURCES:.c=.o)
 OBJECTS += $(OTHERS:.c=.o)
@@ -63,4 +66,10 @@ flash:
 run: $(TARGET).elf flash
 clean: 
 	$(RM) $(TARGET).o $(TARGET).elf $(TARGET).map
-	$(RM) $(LIB-FOLDER)*.o $(TASKS)*.o
+	$(RM) $(LIB-FOLDER)*.o $(TASKS)*.o $(LIB-FOLDER)*.lst $(TASKS)*.lst
+listing:
+	$(OBJDUMP) -Sd $(TARGET).elf> $(TARGET).lst
+server_d:
+	mspdebug rf2500 "prog $(TARGET).elf" gdb
+client_d:	
+	msp430-gdb $(TARGET).elf

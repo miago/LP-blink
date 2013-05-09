@@ -25,6 +25,7 @@
 
 #define LED_RED         0  
 #define LED_GREEN       1
+#define LED_BOTH        2
 
 #define LED_0 BIT0 
 #define LED_1 BIT6

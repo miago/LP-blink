@@ -22,8 +22,9 @@
 #include <button.h>
 #include <message.h>
 
+task buttonTask;
+
 void initButton(){
-      task buttonTask;
       buttonTask.user = MSG_U_BUTTON;
       buttonTask.handler = &buttonHandler;
       registerTask( &buttonTask );
