@@ -57,9 +57,9 @@ int main(void)
         
         startMessage.source = MSG_U_MAIN;
         startMessage.destination = MSG_U_LED;
-        startMessage.id = LED_BOTH;
+        startMessage.id = LED_RED;
         startMessage.priority = MSG_P_7;
-        startMessage.event = EVT_TOGGLE;
+        startMessage.event = EVT_ON;
         startMessage.processed = MSG_UNPROCESSED;
         putMessage( &startMessage );
         

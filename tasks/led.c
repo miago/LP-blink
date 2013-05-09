@@ -24,36 +24,43 @@
 #include <events.h>
 
 task ledTask;
-int error = 0;
-int pass = 0;
 
 void initLed(){
         ledTask.user = MSG_U_LED;
         ledTask.handler = &ledHandler;
-        if( registerTask( &ledTask ) != TASK_OK ){
-                error++;
-        }
+        registerTask( &ledTask );
         
-        LED_DIR |= ( LED_0 + LED_1 ); // Set P1.0 and P1.6 to output direction
-        LED_OUT &= ~( LED_0 + LED_1 ); // Set the LEDs off
+        LED_DIR |= ( LED_RED + LED_GREEN ); // Set P1.0 and P1.6 to output direction
+        ledOff( ID_LED_BOTH );
 }
 
 void ledHandler( message *msg ){
-        pass++;
-        
+
         if( msg->event == EVT_OFF ){
-                if( msg->id == LED_RED ){
-                        LED_OUT |= LED_RED;
-                } else if( msg->id == LED_GREEN ){
-                        LED_OUT |= LED_GREEN;
-                } 
+                ledOff( msg->id );
         } else if( msg->event == EVT_ON ){
-                if( msg->id == LED_RED ){
-                        LED_OUT &= LED_RED;
-                } else if( msg->id == ~LED_GREEN ){
-                        LED_OUT &= ~LED_GREEN;
-                } 
+                ledOn( msg->id );
         }
         
-        msg->processed = 1;
+        msg->processed = MSG_PROCESSED;
+}
+
+void ledOn( int id ){
+        if( id == ID_LED_RED ){
+                LED_OUT |= LED_RED;
+        } else if( id == ID_LED_GREEN ){
+                LED_OUT |= LED_GREEN;
+        } else if( id == ID_LED_BOTH ){
+                LED_OUT |= (LED_GREEN + LED_RED);
+        }
+}
+
+void ledOff( int id ){
+        if( id == ID_LED_RED ){
+                LED_OUT &= ~LED_RED;
+        } else if( id == ID_LED_GREEN ){
+                LED_OUT &= ~LED_GREEN;
+        } else if( id == ID_LED_BOTH ){
+                LED_OUT &= ~(LED_GREEN + LED_RED);
+        }
 }

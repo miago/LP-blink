@@ -23,7 +23,7 @@ INCLUDES = -I../msp-lib/inc -Iinc/
 
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
 #######################################################################################
-CFLAGS   = -mmcu=$(MCU) -g -O3 -ffunction-sections -fdata-sections -Wall -Wunused -Wimplicit-function-declaration $(INCLUDES)
+CFLAGS   = -mmcu=$(MCU) -g -O -ffunction-sections -fdata-sections -Wall -Wunused -Wimplicit-function-declaration $(INCLUDES)
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(TARGET).map
 OBJFLAGS = -dS 
