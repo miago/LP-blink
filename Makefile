@@ -74,3 +74,5 @@ server_d:
 	mspdebug rf2500 "prog $(TARGET).elf" gdb
 client_d:	
 	msp430-gdb $(TARGET).elf
+openSerial:
+	minicom -D /dev/ttyACM0 -b 9600

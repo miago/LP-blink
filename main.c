@@ -1,5 +1,5 @@
 /*
-* This file is part of LP-blink
+* This file is§ part of LP-blink
 *
 * Copyright (C) 2013 Mirco Gysin <miagox@gmail.com>
 *
@@ -19,6 +19,7 @@
 
 
 #include <msp430.h>
+#include <msp430g2553.h>
 #include <clock.h>
 #include <timerA.h>
 #include <launchpad.h>
@@ -31,35 +32,42 @@
 #include <led.h>
 #include <users.h>
 #include <com_uart.h>
+#define interrupt(x) void __attribute__((interrupt (x)))
 
 void mainHandler( message *msg );
 
 message startMessage;
 message secondMessage;
+message msg;
+message msg2;
+
 task mainTask;
+int timerCount;
 
 int main( void ){
-	initQueue();
+
+	disableWDT();// Stop watchdog timer
 	initScheduler();
+	initQueue();
 	initButton();
 	initLed();
 	initComUart();
-	disableWDT();// Stop watchdog timer
+
 
 	mainTask.user = MSG_U_MAIN;
 	mainTask.handler = &mainHandler;
 	registerTask( &mainTask );
 
-	enableTimerA0CCInterrupt();
 	setDCOCLK( DCO_1M );
 	setSMCLK( SMCLK_DCO, CLK_DIV_1 );
+	enableTimerA0CCInterrupt();
 	setTimerA0Mode( TAMODE_CONT );
 	setTimerA0ClockSource( TA_SMCLK );
 	setTimerA0Divider( TA_DIV_2 );
 
 	startMessage.source = MSG_U_MAIN;
 	startMessage.destination = MSG_U_LED;
-	startMessage.id = ID_LED_RED;
+	startMessage.id = ID_LED_GREEN;
 	startMessage.priority = MSG_P_7;
 	startMessage.event = EVT_ON;
 	startMessage.processed = MSG_UNPROCESSED;
@@ -71,29 +79,47 @@ int main( void ){
 	putMessage( &secondMessage );
 
     scheduler();
-    scheduler();
-
 
 	__enable_interrupt();
 
-	__bis_SR_register( 0x18 ); // LPM0 with interrupts enabled
+	__bis_SR_register( 0x18 );
+
+	//__bis_SR_register( 0x18 ); // LPM0 with interrupts enabled
 
 	while( 1 ){};
 
 	return 0;
 }
 
-void mainHandler( message *msg ){
 
+// Timer A0 interrupt service routine
+
+interrupt( TIMER0_A0_VECTOR ) Timer_A ( void )
+{
+    timerCount = (timerCount + 1) % 8;
+    if(timerCount ==0){
+    	msg.source = MSG_U_MAIN;
+    	msg.destination = MSG_U_LED;
+    	msg.id = ID_LED_GREEN;
+    	msg.event = EVT_TOGGLE;
+    	msg.processed = MSG_UNPROCESSED;
+    	putMessage( &msg );
+
+    	msg2.source = MSG_U_MAIN;
+    	msg2.destination = MSG_U_LED;
+    	msg2.id = ID_LED_RED;
+    	msg2.event = EVT_TOGGLE;
+    	msg2.processed = MSG_UNPROCESSED;
+    	putMessage( &msg2 );
+
+    }
+
+    scheduler();
 }
 
 
-// Timer A0 interrupt service routine
-#pragma vector=TIMERA0_VECTOR
-__interrupt void Timer_A ( void )
-{
-//          scheduler();
-//         timerCount = (timerCount + 1) % 8;
-//         if(timerCount ==0)
-//         P1OUT ^= (LED_0 + LED_1);
+
+
+void mainHandler( message *msg ){
+
 }

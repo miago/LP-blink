@@ -26,41 +26,53 @@
 task ledTask;
 
 void initLed(){
-        ledTask.user = MSG_U_LED;
-        ledTask.handler = &ledHandler;
-        registerTask( &ledTask );
-        
-        LED_DIR |= ( LED_RED + LED_GREEN ); // Set P1.0 and P1.6 to output direction
-        ledOff( ID_LED_BOTH );
+	ledTask.user = MSG_U_LED;
+	ledTask.handler = &ledHandler;
+	registerTask( &ledTask );
+
+	LED_DIR |= ( LED_RED + LED_GREEN ); // Set P1.0 and P1.6 to output direction
+	ledOff( ID_LED_BOTH );
 }
 
 void ledHandler( message *msg ){
 
-        if( msg->event == EVT_OFF ){
-                ledOff( msg->id );
-        } else if( msg->event == EVT_ON ){
-                ledOn( msg->id );
-        }
-        
-        msg->processed = MSG_PROCESSED;
+	if( msg->event == EVT_OFF ){
+		ledOff( msg->id );
+	} else if( msg->event == EVT_ON ){
+		ledOn( msg->id );
+	} else if( msg->event == EVT_TOGGLE ){
+		ledToggle( msg->id );
+	}
+
+	msg->processed = MSG_PROCESSED;
 }
 
 void ledOn( int id ){
-        if( id == ID_LED_RED ){
-                LED_OUT |= LED_RED;
-        } else if( id == ID_LED_GREEN ){
-                LED_OUT |= LED_GREEN;
-        } else if( id == ID_LED_BOTH ){
-                LED_OUT |= (LED_GREEN + LED_RED);
-        }
+	if( id == ID_LED_RED ){
+		LED_OUT |= LED_RED;
+	} else if( id == ID_LED_GREEN ){
+		LED_OUT |= LED_GREEN;
+	} else if( id == ID_LED_BOTH ){
+		LED_OUT |= (LED_GREEN + LED_RED);
+	}
 }
 
 void ledOff( int id ){
-        if( id == ID_LED_RED ){
-                LED_OUT &= ~LED_RED;
-        } else if( id == ID_LED_GREEN ){
-                LED_OUT &= ~LED_GREEN;
-        } else if( id == ID_LED_BOTH ){
-                LED_OUT &= ~(LED_GREEN + LED_RED);
-        }
+	if( id == ID_LED_RED ){
+		LED_OUT &= ~LED_RED;
+	} else if( id == ID_LED_GREEN ){
+		LED_OUT &= ~LED_GREEN;
+	} else if( id == ID_LED_BOTH ){
+		LED_OUT &= ~(LED_GREEN + LED_RED);
+	}
+}
+
+void ledToggle( int id ){
+	if( id == ID_LED_RED ){
+		LED_OUT ^= LED_RED;
+	} else if ( id == ID_LED_GREEN ){
+		LED_OUT ^= LED_GREEN;
+	} else if ( id == ID_LED_BOTH ){
+		LED_OUT ^= ( LED_RED + LED_GREEN );
+	}
 }

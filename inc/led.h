@@ -26,7 +26,7 @@
 
 
 #define ID_LED_GREEN    0
-#define ID_LED_RED      1  
+#define ID_LED_RED      1
 #define ID_LED_BOTH     2
 
 #define LED_RED         BIT0 
@@ -38,5 +38,6 @@ void initLed();
 void ledHandler( message *msg );
 void ledOn( int id );
 void ledOff( int id );
+void ledToggle( int id );
 
 #endif
