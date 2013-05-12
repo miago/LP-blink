@@ -25,9 +25,9 @@
 #include <msp430g2553.h>
 
 
-#define ID_LED_GREEN    0
-#define ID_LED_RED      1
-#define ID_LED_BOTH     2
+#define MSG_ID_LED_GREEN    0
+#define MSG_ID_LED_RED      1
+#define MSG_ID_LED_BOTH     2
 
 #define LED_RED         BIT0 
 #define LED_GREEN       BIT6

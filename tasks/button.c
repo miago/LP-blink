@@ -20,16 +20,40 @@
 #include <task.h>
 #include <users.h>
 #include <button.h>
+#include <events.h>
 #include <message.h>
+#include <msp430.h>
+#include <msp430g2553.h>
 
 task buttonTask;
+message buttonMessage;
 
 void initButton(){
-      buttonTask.user = MSG_U_BUTTON;
-      buttonTask.handler = &buttonHandler;
-      registerTask( &buttonTask );
+	buttonTask.user = MSG_U_BUTTON;
+	buttonTask.handler = &buttonHandler;
+	registerTask( &buttonTask );
+
+	P1DIR &= ~BUTTON; //Button input
+	P1IE |= BUTTON; //interrupt for button enabled
+	P1IFG &= ~BUTTON; //Interrupt flag enabled
+	P1IES |= BUTTON; //Hi/lo edge
 }
 
 void buttonHandler( message *msg ){
       
+}
+
+#pragma vector=PORT1_VECTOR
+__interrupt void Port_1(void)
+{
+	P1IES ^= BIT3;
+	P1IFG &= ~BIT3; // P1.3 IFG cleared
+	buttonMessage.source = MSG_U_BUTTON;
+	buttonMessage.destination = MSG_U_COM_UART;
+	buttonMessage.event = MSG_EVT_ON;
+	buttonMessage.processed = MSG_UNPROCESSED;
+
+	sendMessage( &buttonMessage );
+
+
 }

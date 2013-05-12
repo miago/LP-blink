@@ -22,6 +22,11 @@
 
 #include <message.h>
 
+#define BUTTON	BIT3
+
+#define MSG_BUTTON_PRESSED	0
+#define MSG_BUTTON_RELEASED	1
+
 void initButton();
 void buttonHandler( message *msg );
 

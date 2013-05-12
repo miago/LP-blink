@@ -40,6 +40,7 @@ message startMessage;
 message secondMessage;
 message msg;
 message msg2;
+message *fromPool;
 
 task mainTask;
 int timerCount;
@@ -47,10 +48,12 @@ int timerCount;
 int main( void ){
 
 	disableWDT();// Stop watchdog timer
-	initScheduler();
 	initQueue();
+	initScheduler();
+
 	initButton();
 	initLed();
+	initButton();
 	initComUart();
 
 	mainTask.user = MSG_U_MAIN;
@@ -66,16 +69,39 @@ int main( void ){
 
 	startMessage.source = MSG_U_MAIN;
 	startMessage.destination = MSG_U_LED;
-	startMessage.id = ID_LED_GREEN;
-	startMessage.priority = MSG_P_7;
-	startMessage.event = EVT_ON;
+	startMessage.id = MSG_ID_LED_GREEN;
+	startMessage.priority = MSG_P_UNDEF;
+	startMessage.event = MSG_EVT_ON;
 	startMessage.processed = MSG_UNPROCESSED;
 	putMessage( &startMessage );
 
-	secondMessage.destination = MSG_U_COM_UART;
-	secondMessage.id = MSG_ID_WELCOME;
-	secondMessage.processed = MSG_UNPROCESSED;
-	putMessage( &secondMessage );
+	getFreeMessage( &fromPool );
+	fromPool->destination = MSG_U_COM_UART;
+	fromPool->source = MSG_U_MAIN;
+	fromPool->id = MSG_ID_UART_WELCOME;
+	fromPool->processed = MSG_UNPROCESSED;
+	putMessage( fromPool );
+
+	getFreeMessage( &fromPool );
+	fromPool->destination = MSG_U_COM_UART;
+	fromPool->source = MSG_U_MAIN;
+	fromPool->id = MSG_ID_UART_WELCOME;
+	fromPool->processed = MSG_UNPROCESSED;
+	putMessage( fromPool );
+
+	getFreeMessage( &fromPool );
+	fromPool->destination = MSG_U_COM_UART;
+	fromPool->source = MSG_U_MAIN;
+	fromPool->id = MSG_ID_UART_WELCOME;
+	fromPool->processed = MSG_UNPROCESSED;
+	putMessage( fromPool );
+
+	getFreeMessage( &fromPool );
+	fromPool->destination = MSG_U_COM_UART;
+	fromPool->source = MSG_U_MAIN;
+	fromPool->id = MSG_ID_UART_WELCOME;
+	fromPool->processed = MSG_UNPROCESSED;
+	putMessage( fromPool );
 
     scheduler();
 
@@ -97,19 +123,19 @@ int main( void ){
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void timerA0ISR( void )
 {
-	timerCount = ( timerCount + 1 ) % 8;
+	timerCount = ( timerCount + 1 ) % 2;
 	if ( timerCount == 0 ) {
 		msg.source = MSG_U_MAIN;
 		msg.destination = MSG_U_LED;
-		msg.id = ID_LED_GREEN;
-		msg.event = EVT_TOGGLE;
+		msg.id = MSG_ID_LED_GREEN;
+		msg.event = MSG_EVT_TOGGLE;
 		msg.processed = MSG_UNPROCESSED;
 		putMessage(&msg);
 
 		msg2.source = MSG_U_MAIN;
 		msg2.destination = MSG_U_LED;
-		msg2.id = ID_LED_RED;
-		msg2.event = EVT_TOGGLE;
+		msg2.id = MSG_ID_LED_RED;
+		msg2.event = MSG_EVT_TOGGLE;
 		msg2.processed = MSG_UNPROCESSED;
 		putMessage(&msg2);
 	}

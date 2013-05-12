@@ -20,6 +20,7 @@
 #include <com_uart.h>
 #include <task.h>
 #include <message.h>
+#include <button.h>
 #include <queue.h>
 #include <users.h>
 #include <msp430.h>
@@ -73,12 +74,22 @@ void comUartPutS( const char *str )
 }
 
 void comUartHandler( message *msg ){
-	if( msg->id == MSG_ID_WELCOME ){
-		comUartPutS( ( char *)"\n\rHey Master! How are you?");
-		msg->processed = MSG_PROCESSED;
-	} else if( msg->id == MSG_ID_ERROR ){
+	if ( msg->source == MSG_U_MAIN ){
+		if( msg->id == MSG_ID_UART_WELCOME ){
+			comUartPutS( ( char *)"\n\rHey Master! How are you?");
+			msg->processed = MSG_PROCESSED;
+			return;
+		}
+	} else if ( msg->source == MSG_U_BUTTON ) {
+		if( msg->event == MSG_BUTTON_PRESSED ){
+			comUartPutS( ( char *)"\n\rButton Pressed");
+			msg->processed = MSG_PROCESSED;
+			return;
+		}
+	} else if( msg->id == MSG_ID_UART_ERROR ){
 		comUartPutS( ( char *)"\n\rERROR!");
 		msg->processed = MSG_PROCESSED;
+		return;
 	}
 }
 

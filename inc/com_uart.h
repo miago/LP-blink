@@ -25,8 +25,8 @@
 #include <message.h>
 #include <msp430.h>
 
-#define MSG_ID_WELCOME	0
-#define MSG_ID_ERROR	1
+#define MSG_ID_UART_WELCOME	0
+#define MSG_ID_UART_ERROR	1
 
 void initComUart();
 
