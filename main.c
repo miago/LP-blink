@@ -32,15 +32,13 @@
 #include <led.h>
 #include <users.h>
 #include <com_uart.h>
+
 #define interrupt(x) void __attribute__((interrupt (x)))
 
 void mainHandler( message *msg );
 
-message startMessage;
-message secondMessage;
-message msg;
-message msg2;
-message *fromPool;
+message *mainMessage;
+unsigned char cmdNameMain[] = "\0";
 
 task mainTask;
 int timerCount;
@@ -54,56 +52,39 @@ int main( void ){
 	initButton();
 	initLed();
 	initButton();
-	initComUart();
+	//initComUart();
 
+	mainTask.cmdName = cmdNameMain;
 	mainTask.user = MSG_U_MAIN;
 	mainTask.handler = &mainHandler;
 	registerTask( &mainTask );
 
 	setDCOCLK( DCO_1M );
 	setSMCLK( SMCLK_DCO, CLK_DIV_1 );
+
+
+	if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
+		mainMessage->source = MSG_U_MAIN;
+		mainMessage->destination = MSG_U_LED;
+		mainMessage->id = MSG_ID_LED_GREEN;
+		mainMessage->priority = MSG_P_UNDEF;
+		mainMessage->event = MSG_EVT_ON;
+		mainMessage->processed = MSG_UNPROCESSED;
+		putMessage( mainMessage );
+	}
+
+/*	if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
+		mainMessage->destination = MSG_U_COM_UART;
+		mainMessage->source = MSG_U_MAIN;
+		mainMessage->id = MSG_ID_UART_WELCOME;
+		mainMessage->processed = MSG_UNPROCESSED;
+		putMessage( mainMessage );
+	}*/
+
 	enableTimerA0CCInterrupt();
 	setTimerA0Mode( TAMODE_CONT );
 	setTimerA0ClockSource( TA_SMCLK );
 	setTimerA0Divider( TA_DIV_2 );
-
-	startMessage.source = MSG_U_MAIN;
-	startMessage.destination = MSG_U_LED;
-	startMessage.id = MSG_ID_LED_GREEN;
-	startMessage.priority = MSG_P_UNDEF;
-	startMessage.event = MSG_EVT_ON;
-	startMessage.processed = MSG_UNPROCESSED;
-	putMessage( &startMessage );
-
-	getFreeMessage( &fromPool );
-	fromPool->destination = MSG_U_COM_UART;
-	fromPool->source = MSG_U_MAIN;
-	fromPool->id = MSG_ID_UART_WELCOME;
-	fromPool->processed = MSG_UNPROCESSED;
-	putMessage( fromPool );
-
-	getFreeMessage( &fromPool );
-	fromPool->destination = MSG_U_COM_UART;
-	fromPool->source = MSG_U_MAIN;
-	fromPool->id = MSG_ID_UART_WELCOME;
-	fromPool->processed = MSG_UNPROCESSED;
-	putMessage( fromPool );
-
-	getFreeMessage( &fromPool );
-	fromPool->destination = MSG_U_COM_UART;
-	fromPool->source = MSG_U_MAIN;
-	fromPool->id = MSG_ID_UART_WELCOME;
-	fromPool->processed = MSG_UNPROCESSED;
-	putMessage( fromPool );
-
-	getFreeMessage( &fromPool );
-	fromPool->destination = MSG_U_COM_UART;
-	fromPool->source = MSG_U_MAIN;
-	fromPool->id = MSG_ID_UART_WELCOME;
-	fromPool->processed = MSG_UNPROCESSED;
-	putMessage( fromPool );
-
-    scheduler();
 
 	__enable_interrupt();
 
@@ -125,19 +106,14 @@ __interrupt void timerA0ISR( void )
 {
 	timerCount = ( timerCount + 1 ) % 2;
 	if ( timerCount == 0 ) {
-		msg.source = MSG_U_MAIN;
-		msg.destination = MSG_U_LED;
-		msg.id = MSG_ID_LED_GREEN;
-		msg.event = MSG_EVT_TOGGLE;
-		msg.processed = MSG_UNPROCESSED;
-		putMessage(&msg);
-
-		msg2.source = MSG_U_MAIN;
-		msg2.destination = MSG_U_LED;
-		msg2.id = MSG_ID_LED_RED;
-		msg2.event = MSG_EVT_TOGGLE;
-		msg2.processed = MSG_UNPROCESSED;
-		putMessage(&msg2);
+		if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
+			mainMessage->source = MSG_U_MAIN;
+			mainMessage->destination = MSG_U_LED;
+			mainMessage->id = MSG_ID_LED_GREEN;
+			mainMessage->event = MSG_EVT_TOGGLE;
+			mainMessage->processed = MSG_UNPROCESSED;
+			putMessage( mainMessage );
+		}
 	}
 	scheduler();
 }

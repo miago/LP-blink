@@ -20,13 +20,15 @@
 #ifndef __UARTH_H__
 #define __UARTH_H__
 
-#define UART_QUEUE_SIZE 30
+#define COM_UART_RX_BUFFER_SIZE 30
 
 #include <message.h>
 #include <msp430.h>
 
 #define MSG_ID_UART_WELCOME	0
 #define MSG_ID_UART_ERROR	1
+
+#define ENTER_CHAR		13
 
 void initComUart();
 

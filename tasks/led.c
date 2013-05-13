@@ -23,9 +23,12 @@
 #include <message.h>
 #include <events.h>
 
+unsigned char cmdNameLed[] = "led";
 task ledTask;
 
 void initLed(){
+
+	ledTask.cmdName = cmdNameLed;
 	ledTask.user = MSG_U_LED;
 	ledTask.handler = &ledHandler;
 	registerTask( &ledTask );

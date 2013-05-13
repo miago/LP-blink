@@ -19,6 +19,7 @@
 
 #include <task.h>
 #include <users.h>
+#include <queue.h>
 #include <button.h>
 #include <events.h>
 #include <message.h>
@@ -53,7 +54,7 @@ __interrupt void Port_1(void)
 	buttonMessage.event = MSG_EVT_ON;
 	buttonMessage.processed = MSG_UNPROCESSED;
 
-	sendMessage( &buttonMessage );
+	putMessage( &buttonMessage );
 
 
 }

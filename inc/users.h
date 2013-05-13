@@ -27,5 +27,6 @@
 #define MSG_U_BUTTON    2
 #define MSG_U_MAIN      3
 #define MSG_U_COM_UART  4
+#define MSG_U_CLI		5
 
 #endif

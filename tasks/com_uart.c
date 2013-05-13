@@ -21,6 +21,7 @@
 #include <task.h>
 #include <message.h>
 #include <button.h>
+#include <events.h>
 #include <queue.h>
 #include <users.h>
 #include <msp430.h>
@@ -32,11 +33,17 @@
 
 task comUartTask;
 
+message uartMessage;
+message *eMessage;
+
+int rxBufferPointer;
+unsigned char rxBuffer[COM_UART_RX_BUFFER_SIZE];
+
 unsigned char rx_byte;
 
-char rx_queue[UART_QUEUE_SIZE];
-
 void initComUart(){
+
+	uartMessage.source = MSG_U_COM_UART;
 
 	UCA0CTL1 = UCSWRST;							//RESET
 	UCA0CTL1 |= UCSSEL_2;                     // SMCLK
@@ -76,7 +83,7 @@ void comUartPutS( const char *str )
 void comUartHandler( message *msg ){
 	if ( msg->source == MSG_U_MAIN ){
 		if( msg->id == MSG_ID_UART_WELCOME ){
-			comUartPutS( ( char *)"\n\rHey Master! How are you?");
+			comUartPutS( ( char *)"\n\rHi master, what would you like to do today?");
 			msg->processed = MSG_PROCESSED;
 			return;
 		}
@@ -86,11 +93,16 @@ void comUartHandler( message *msg ){
 			msg->processed = MSG_PROCESSED;
 			return;
 		}
+	} else if( msg->source == MSG_U_COM_UART ){
+		if( msg->event == MSG_EVT_ECHO ){
+			comUartPutC((unsigned char) msg->id);
+		}
 	} else if( msg->id == MSG_ID_UART_ERROR ){
 		comUartPutS( ( char *)"\n\rERROR!");
 		msg->processed = MSG_PROCESSED;
 		return;
 	}
+
 }
 
 // Timer A0 interrupt service routine
@@ -98,4 +110,31 @@ void comUartHandler( message *msg ){
 __interrupt void comUartRxISR( void )
 {
 	rx_byte = UCA0RXBUF;
+	if( rx_byte == ENTER_CHAR ){
+		//send message to cli
+		rxBuffer[rxBufferPointer] = '\0';
+
+		if( uartMessage.processed != MSG_PROCESSED ){
+			uartMessage.destination = MSG_U_CLI;
+			uartMessage.processed = MSG_UNPROCESSED;
+			uartMessage.argument = rxBuffer;
+
+			putMessage( &uartMessage );
+		}
+	} else{
+		if( rxBufferPointer < ( COM_UART_RX_BUFFER_SIZE - 2 ) ){
+			rxBuffer[rxBufferPointer] = rx_byte;
+			rxBufferPointer++;
+
+			//echo
+			if( getFreeMessage( &eMessage ) == QUEUE_OK ){
+				eMessage->destination = MSG_U_COM_UART;
+				eMessage->source = MSG_U_COM_UART;
+				eMessage->event = MSG_EVT_ECHO;
+				eMessage->id = (int) rx_byte;
+
+				putMessage( eMessage );
+			}
+		}
+	}
 }

@@ -17,15 +17,14 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __EVENTS__
-#define __EVENTS__
+#ifndef __CLI_H__
+#define __CLI_H__
 
-//message queue events
+#include <message.h>
 
-//#define MSG_EVT_UNDEF       0
-#define MSG_EVT_ON          1
-#define MSG_EVT_OFF         2
-#define MSG_EVT_TOGGLE      3
-#define MSG_EVT_ECHO		4
+void initCli();
+
+void cliHandler( message *msg );
+
 
 #endif
