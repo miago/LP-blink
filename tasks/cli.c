@@ -19,6 +19,7 @@
 
 #include <cli.h>
 #include <task.h>
+#include <queue.h>
 #include <message.h>
 #include <users.h>
 #include <string.h>
