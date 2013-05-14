@@ -22,9 +22,11 @@
 #include <message.h>
 #include <button.h>
 #include <events.h>
+#include <led.h>
 #include <queue.h>
 #include <users.h>
 #include <msp430.h>
+#include <string.h>
 //for eclipse
 #include <msp430g2553.h>
 
@@ -38,8 +40,9 @@ message *eMessage;
 
 int rxBufferPointer;
 unsigned char rxBuffer[COM_UART_RX_BUFFER_SIZE];
-
+unsigned char rxArgBuffer[COM_UART_RX_BUFFER_SIZE];
 unsigned char rx_byte;
+unsigned char comUartCmd[] = "comUart";
 
 void initComUart(){
 
@@ -65,6 +68,7 @@ void initComUart(){
 
 	comUartTask.user = MSG_U_COM_UART;
 	comUartTask.handler = &comUartHandler;
+	comUartTask.cmdName = comUartCmd;
 
 	registerTask( &comUartTask );
 
@@ -82,13 +86,18 @@ void comUartPutS( const char *str )
 
 void comUartHandler( message *msg ){
 	msg->processed = MSG_PROCESSED;
-	if ( msg->source == MSG_U_MAIN ){
+	if( msg->id == MSG_ID_PRINT_NL_ARG ){
+		comUartPutS( ( const char *) "\n\r" );
+		comUartPutS( ( const char *) msg->argument );
+	} else if( msg->id == MSG_ID_PRINT_ARG ){
+		comUartPutS( ( const char *) msg->argument );
+	} else if( msg->source == MSG_U_MAIN ){
 		if( msg->id == MSG_ID_UART_WELCOME ){
-			comUartPutS( ( char *)"\n\rHello master, what would you like to do today?");
+			comUartPutS( ( char *)"\n\rHello master, what would you like to do today?\n\r");
 
 			return;
 		}
-	} else if ( msg->source == MSG_U_BUTTON ) {
+	} else if( msg->source == MSG_U_BUTTON ) {
 		if( msg->id == MSG_ID_BUTTON ){
 			if ( msg->event == MSG_EVT_ON ) {
 				comUartPutS( ( char *)"\n\rButton Pressed");
@@ -104,8 +113,6 @@ void comUartHandler( message *msg ){
 		}
 	} else if( msg->id == MSG_ID_UART_ERROR ){
 		comUartPutS( ( char *)"\n\rERROR!");
-
-		return;
 	}
 }
 
@@ -115,15 +122,22 @@ __interrupt void comUartRxISR( void )
 {
 	rx_byte = UCA0RXBUF;
 	if( rx_byte == ENTER_CHAR ){
+
+		if( rxBufferPointer == 0 ){
+			return;
+		}
+
 		//send message to cli
 		rxBuffer[rxBufferPointer] = '\0';
+		rxBufferPointer = 0;
 
-		if( uartMessage.processed != MSG_PROCESSED ){
-			uartMessage.destination = MSG_U_CLI;
-			uartMessage.processed = MSG_UNPROCESSED;
-			uartMessage.argument = rxBuffer;
-
-			putMessage( &uartMessage );
+		if( getFreeMessage( &eMessage ) == QUEUE_OK ){
+			eMessage->source = MSG_U_COM_UART;
+			eMessage->destination = MSG_U_CLI;
+			eMessage->processed = MSG_UNPROCESSED;
+			eMessage->argument = rxArgBuffer;
+			strcpy( ( char * ) eMessage->argument, ( const char * ) rxBuffer );
+			putMessage( eMessage );
 		}
 	} else{
 		if( rxBufferPointer < ( COM_UART_RX_BUFFER_SIZE - 2 ) ){
@@ -136,7 +150,6 @@ __interrupt void comUartRxISR( void )
 				eMessage->source = MSG_U_COM_UART;
 				eMessage->event = MSG_EVT_ECHO;
 				eMessage->id = (int) rx_byte;
-
 				putMessage( eMessage );
 			}
 		}

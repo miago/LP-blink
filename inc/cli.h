@@ -22,6 +22,9 @@
 
 #include <message.h>
 
+#define MSG_ID_TASK_END	1
+#define MSG_ID_P_PROMPT	2
+
 void initCli();
 
 void cliHandler( message *msg );

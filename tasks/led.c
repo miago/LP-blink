@@ -19,12 +19,19 @@
 
 #include <task.h>
 #include <users.h>
+#include <queue.h>
 #include <led.h>
 #include <message.h>
 #include <events.h>
+#include <string.h>
+#include <cli.h>
+#include <com_uart.h>
 
 unsigned char cmdNameLed[] = "led";
 task ledTask;
+message *ledMsg;
+unsigned char ledError[] = "Error";
+unsigned char ledOk[] = "Done";
 
 void initLed(){
 
@@ -39,6 +46,11 @@ void initLed(){
 
 void ledHandler( message *msg ){
 
+	if( msg->source == MSG_U_CLI ){
+		ledCliHandler( msg );
+		return;
+	}
+
 	if( msg->event == MSG_EVT_OFF ){
 		ledOff( msg->id );
 	} else if( msg->event == MSG_EVT_ON ){
@@ -48,6 +60,38 @@ void ledHandler( message *msg ){
 	}
 
 	msg->processed = MSG_PROCESSED;
+}
+
+void ledCliHandler( message *msg ){
+
+	unsigned char* arg;
+
+	if ( getFreeMessage( &ledMsg ) == QUEUE_OK ){
+		ledMsg->id = MSG_ID_TASK_END;
+		ledMsg->source = MSG_U_LED;
+		ledMsg->destination = MSG_U_CLI;
+		ledMsg->processed = MSG_UNPROCESSED;
+		putMessage( ledMsg );
+	}
+	if( strcmp( ( const char * ) "on", ( const char * ) msg->argument ) == 0 ){
+		ledOn( MSG_ID_LED_BOTH );
+		arg = ledOk;
+
+	} else if( strcmp( ( const char * ) "off", ( const char * ) msg->argument ) == 0 ){
+		ledOff( MSG_ID_LED_BOTH );
+		arg = ledOk;
+	} else {
+		arg = ledError;
+	}
+
+	if ( getFreeMessage( &ledMsg ) == QUEUE_OK ){
+		ledMsg->id = MSG_ID_PRINT_NL_ARG;
+		ledMsg->source = MSG_U_LED;
+		ledMsg->destination = MSG_U_COM_UART;
+		ledMsg->processed = MSG_UNPROCESSED;
+		ledMsg->argument = arg;
+		putMessage( ledMsg );
+	}
 }
 
 void ledOn( int id ){

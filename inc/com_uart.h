@@ -27,6 +27,8 @@
 
 #define MSG_ID_UART_WELCOME	0
 #define MSG_ID_UART_ERROR	1
+#define MSG_ID_PRINT_ARG	2
+#define MSG_ID_PRINT_NL_ARG	3
 
 #define ENTER_CHAR		13
 

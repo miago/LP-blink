@@ -36,6 +36,7 @@
 
 void initLed(); 
 void ledHandler( message *msg );
+void ledCliHandler( message *msg );
 void ledOn( int id );
 void ledOff( int id );
 void ledToggle( int id );

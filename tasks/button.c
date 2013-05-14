@@ -28,10 +28,12 @@
 
 task buttonTask;
 message *buttonMessage;
+unsigned char buttonCmd[] = "button";
 
 void initButton(){
 	buttonTask.user = MSG_U_BUTTON;
 	buttonTask.handler = &buttonHandler;
+	buttonTask.cmdName = buttonCmd;
 	registerTask( &buttonTask );
 
 	P1DIR &= ~BUTTON; //Button input
@@ -55,11 +57,13 @@ __interrupt void Port_1( void )
 		buttonMessage->source = MSG_U_BUTTON;
 		buttonMessage->destination = MSG_U_COM_UART;
 		buttonMessage->id = MSG_ID_BUTTON;
+
 		if( ( P1IN & BUTTON ) == 0x00 ){
 			buttonMessage->event = MSG_EVT_ON;
 		} else {
 			buttonMessage->event = MSG_EVT_OFF;
 		}
+
 		buttonMessage->processed = MSG_UNPROCESSED;
 		putMessage( buttonMessage );
 	}

@@ -30,6 +30,7 @@
 #include <scheduler.h>
 #include <button.h>
 #include <led.h>
+#include <cli.h>
 #include <users.h>
 #include <com_uart.h>
 
@@ -38,7 +39,7 @@
 void mainHandler( message *msg );
 
 message *mainMessage;
-unsigned char cmdNameMain[] = "\0";
+unsigned char cmdNameMain[] = "main";
 
 task mainTask;
 int timerCount;
@@ -51,8 +52,8 @@ int main( void ){
 
 	initButton();
 	initLed();
-	initButton();
 	initComUart();
+	initCli();
 
 	mainTask.cmdName = cmdNameMain;
 	mainTask.user = MSG_U_MAIN;
@@ -84,7 +85,7 @@ int main( void ){
 	enableTimerA0CCInterrupt();
 	setTimerA0Mode( TAMODE_CONT );
 	setTimerA0ClockSource( TA_SMCLK );
-	setTimerA0Divider( TA_DIV_2 );
+	setTimerA0Divider( TA_DIV_1 );
 
 	__enable_interrupt();
 
@@ -102,7 +103,7 @@ int main( void ){
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void timerA0ISR( void )
 {
-	timerCount = ( timerCount + 1 ) % 8;
+	timerCount = ( timerCount + 1 ) % 32;
 	if ( timerCount == 0 ) {
 		if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
 			mainMessage->source = MSG_U_MAIN;
@@ -114,8 +115,8 @@ __interrupt void timerA0ISR( void )
 		} else {
 			ledToggle( MSG_ID_LED_RED );
 		}
-		scheduler();
 	}
+	scheduler();
 
 }
 
