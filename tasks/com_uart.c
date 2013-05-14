@@ -81,16 +81,21 @@ void comUartPutS( const char *str )
 }
 
 void comUartHandler( message *msg ){
+	msg->processed = MSG_PROCESSED;
 	if ( msg->source == MSG_U_MAIN ){
 		if( msg->id == MSG_ID_UART_WELCOME ){
-			comUartPutS( ( char *)"\n\rHi master, what would you like to do today?");
-			msg->processed = MSG_PROCESSED;
+			comUartPutS( ( char *)"\n\rHello master, what would you like to do today?");
+
 			return;
 		}
 	} else if ( msg->source == MSG_U_BUTTON ) {
-		if( msg->event == MSG_BUTTON_PRESSED ){
-			comUartPutS( ( char *)"\n\rButton Pressed");
-			msg->processed = MSG_PROCESSED;
+		if( msg->id == MSG_ID_BUTTON ){
+			if ( msg->event == MSG_EVT_ON ) {
+				comUartPutS( ( char *)"\n\rButton Pressed");
+			} else {
+				comUartPutS( ( char *)"\n\rButton Released");
+			}
+
 			return;
 		}
 	} else if( msg->source == MSG_U_COM_UART ){
@@ -99,10 +104,9 @@ void comUartHandler( message *msg ){
 		}
 	} else if( msg->id == MSG_ID_UART_ERROR ){
 		comUartPutS( ( char *)"\n\rERROR!");
-		msg->processed = MSG_PROCESSED;
+
 		return;
 	}
-
 }
 
 // Timer A0 interrupt service routine

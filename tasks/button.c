@@ -27,7 +27,7 @@
 #include <msp430g2553.h>
 
 task buttonTask;
-message buttonMessage;
+message *buttonMessage;
 
 void initButton(){
 	buttonTask.user = MSG_U_BUTTON;
@@ -45,16 +45,22 @@ void buttonHandler( message *msg ){
 }
 
 #pragma vector=PORT1_VECTOR
-__interrupt void Port_1(void)
+__interrupt void Port_1( void )
 {
 	P1IES ^= BIT3;
 	P1IFG &= ~BIT3; // P1.3 IFG cleared
-	buttonMessage.source = MSG_U_BUTTON;
-	buttonMessage.destination = MSG_U_COM_UART;
-	buttonMessage.event = MSG_EVT_ON;
-	buttonMessage.processed = MSG_UNPROCESSED;
 
-	putMessage( &buttonMessage );
+	if( getFreeMessage( &buttonMessage ) == QUEUE_OK ){
 
-
+		buttonMessage->source = MSG_U_BUTTON;
+		buttonMessage->destination = MSG_U_COM_UART;
+		buttonMessage->id = MSG_ID_BUTTON;
+		if( ( P1IN & BUTTON ) == 0x00 ){
+			buttonMessage->event = MSG_EVT_ON;
+		} else {
+			buttonMessage->event = MSG_EVT_OFF;
+		}
+		buttonMessage->processed = MSG_UNPROCESSED;
+		putMessage( buttonMessage );
+	}
 }

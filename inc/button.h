@@ -24,6 +24,8 @@
 
 #define BUTTON	BIT3
 
+#define MSG_ID_BUTTON 	0
+
 #define MSG_BUTTON_PRESSED	0
 #define MSG_BUTTON_RELEASED	1
 

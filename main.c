@@ -52,7 +52,7 @@ int main( void ){
 	initButton();
 	initLed();
 	initButton();
-	//initComUart();
+	initComUart();
 
 	mainTask.cmdName = cmdNameMain;
 	mainTask.user = MSG_U_MAIN;
@@ -73,13 +73,13 @@ int main( void ){
 		putMessage( mainMessage );
 	}
 
-/*	if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
+	if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
 		mainMessage->destination = MSG_U_COM_UART;
 		mainMessage->source = MSG_U_MAIN;
 		mainMessage->id = MSG_ID_UART_WELCOME;
 		mainMessage->processed = MSG_UNPROCESSED;
 		putMessage( mainMessage );
-	}*/
+	}
 
 	enableTimerA0CCInterrupt();
 	setTimerA0Mode( TAMODE_CONT );
@@ -99,12 +99,10 @@ int main( void ){
 
 
 // Timer A0 interrupt service routine
-
-// Timer A0 interrupt service routine
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void timerA0ISR( void )
 {
-	timerCount = ( timerCount + 1 ) % 2;
+	timerCount = ( timerCount + 1 ) % 8;
 	if ( timerCount == 0 ) {
 		if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
 			mainMessage->source = MSG_U_MAIN;
@@ -113,9 +111,12 @@ __interrupt void timerA0ISR( void )
 			mainMessage->event = MSG_EVT_TOGGLE;
 			mainMessage->processed = MSG_UNPROCESSED;
 			putMessage( mainMessage );
+		} else {
+			ledToggle( MSG_ID_LED_RED );
 		}
+		scheduler();
 	}
-	scheduler();
+
 }
 
 
