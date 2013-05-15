@@ -32,6 +32,7 @@
 #include <led.h>
 #include <cli.h>
 #include <users.h>
+#include <info.h>
 #include <com_uart.h>
 
 #define interrupt(x) void __attribute__((interrupt (x)))
@@ -54,6 +55,7 @@ int main( void ){
 	initLed();
 	initComUart();
 	initCli();
+	initInfo();
 
 	mainTask.cmdName = cmdNameMain;
 	mainTask.user = MSG_U_MAIN;

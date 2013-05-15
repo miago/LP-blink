@@ -1,6 +1,6 @@
 /*
 * This file is part of LP-blink
-* 
+*
 * Copyright (C) 2013 Mirco Gysin <miagox@gmail.com>
 *
 * This program is free software: you can redistribute it and/or modify
@@ -17,17 +17,22 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __USERS__
-#define __USERS__
+#ifndef __INFO_H_
+#define __INFO_H_
 
-//Message queue users
-//#define MSG_U_UNDEF		0
-// Already defined in OS
-#define MSG_U_LED       1
-#define MSG_U_BUTTON    2
-#define MSG_U_MAIN      3
-#define MSG_U_COM_UART  4
-#define MSG_U_CLI		5
-#define MSG_U_INFO		6
+#include <message.h>
+
+void initInfo();
+void infoHandler( message *msg );
+void printTemperature();
+void infoCliHandler( message *msg );
+
+#define MSG_ID_TEMPERATURE	1
+#define MSG_ID_UPTIME		2
+#define MSG_ID_QUEUE_LEN	3
+#define MSG_ID_UNPROC_MSG	4
+#define MSG_ID_ERROR		5
+
+
 
 #endif

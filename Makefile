@@ -14,10 +14,10 @@ MCU        = msp430g2553
 # eg if you have a source file foo.c then list it here
 TASKS = tasks/
 SOURCES = main.c
-SOURCES += $(TASKS)button.c $(TASKS)led.c $(TASKS)com_uart.c $(TASKS)cli.c
+SOURCES += $(TASKS)button.c $(TASKS)led.c $(TASKS)com_uart.c $(TASKS)cli.c $(TASKS)info.c  
 LIB-FOLDER = ../msp-lib/c/
 OTHERS = $(LIB-FOLDER)clock.c $(LIB-FOLDER)timerA0.c $(LIB-FOLDER)opMode.c $(LIB-FOLDER)launchpad.c \
-	$(LIB-FOLDER)queue.c $(LIB-FOLDER)scheduler.c $(LIB-FOLDER)task.c 
+	$(LIB-FOLDER)queue.c $(LIB-FOLDER)scheduler.c $(LIB-FOLDER)task.c  
 # Include are located in the Include directory
 INCLUDES = -I../msp-lib/inc -Iinc/
 
