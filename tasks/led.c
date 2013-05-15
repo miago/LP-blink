@@ -66,13 +66,6 @@ void ledCliHandler( message *msg ){
 
 	unsigned char* arg;
 
-	if ( getFreeMessage( &ledMsg ) == QUEUE_OK ){
-		ledMsg->id = MSG_ID_TASK_END;
-		ledMsg->source = MSG_U_LED;
-		ledMsg->destination = MSG_U_CLI;
-		ledMsg->processed = MSG_UNPROCESSED;
-		putMessage( ledMsg );
-	}
 	if( strcmp( ( const char * ) "on", ( const char * ) msg->argument ) == 0 ){
 		ledOn( MSG_ID_LED_BOTH );
 		arg = ledOk;
@@ -90,6 +83,14 @@ void ledCliHandler( message *msg ){
 		ledMsg->destination = MSG_U_COM_UART;
 		ledMsg->processed = MSG_UNPROCESSED;
 		ledMsg->argument = arg;
+		putMessage( ledMsg );
+	}
+
+	if ( getFreeMessage( &ledMsg ) == QUEUE_OK ){
+		ledMsg->id = MSG_ID_TASK_END;
+		ledMsg->source = MSG_U_LED;
+		ledMsg->destination = MSG_U_CLI;
+		ledMsg->processed = MSG_UNPROCESSED;
 		putMessage( ledMsg );
 	}
 }

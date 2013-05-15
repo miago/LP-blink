@@ -75,13 +75,19 @@ void initComUart(){
 }
 
 void comUartPutC( unsigned char byte ){
+
+	if( byte == 0x00 ){
+		return;
+	}
 	while ( !( IFG2 & UCA0TXIFG ) );
 	UCA0TXBUF = byte;
 }
 
 void comUartPutS( const char *str )
 {
-	while( *str ) comUartPutC( *str++ );
+	while( *str ) {
+		comUartPutC( *str++ );
+	}
 }
 
 void comUartHandler( message *msg ){

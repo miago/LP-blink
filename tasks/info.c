@@ -45,7 +45,6 @@ void initInfo( void ){
 
 void infoHandler( message *msg ){
 	int a;
-	infoStr[0] = 0x00;
 
 	if( msg->source == MSG_U_CLI ){
 		infoCliHandler( msg );
@@ -55,18 +54,13 @@ void infoHandler( message *msg ){
 	case MSG_ID_TEMPERATURE:
 		printTemperature();
 		break;
-	case MSG_ID_QUEUE_LEN:
-		a = getQueuePointer();
-		infoStrPtr = itoa( a, ( char * ) infoStr, 10 );
-		strcpy( infoStrPtr, ( const char * ) " in the message queue" );
-		break;
 	case MSG_ID_UNPROC_MSG:
 		a = getNrOfUnprocMessages();
-		infoStrPtr = itoa( a, ( char * ) infoStr, 10 );
-		strcpy( infoStrPtr, ( const char * ) " unprocessed message(s)" );
+		itoa( a, ( char * ) infoStr, 10 );
+		strcpy( ( char * ) infoStr + strlen( ( const char * ) infoStr ), ( const char * ) " unprocessed messages \n" );
 		break;
 	case MSG_ID_ERROR:
-		strcpy( ( char * ) infoStr, ( const char * ) "Argument error!" );
+		strcpy( ( char * ) infoStr, ( const char * ) "Argument error!\n" );
 		break;
 	}
 
@@ -81,13 +75,7 @@ void infoHandler( message *msg ){
 	}
 
 	msg->processed = MSG_PROCESSED;
-}
 
-void printTemperature( void ){
-
-}
-
-void infoCliHandler( message *msg ){
 	if ( getFreeMessage( &infoMsg ) == QUEUE_OK ){
 		infoMsg->source = MSG_U_INFO;
 		infoMsg->destination = MSG_U_CLI;
@@ -96,8 +84,16 @@ void infoCliHandler( message *msg ){
 		putMessage( infoMsg );
 	}
 
+}
+
+void printTemperature( void ){
+	strcpy( ( char * ) infoStr, ( const char * ) "non yet implemented!\0" );
+}
+
+void infoCliHandler( message *msg ){
+
 	if( strcmp( ( const char * ) "qlen", ( const char * ) msg->argument ) == 0 ){
-		msg->id = MSG_ID_QUEUE_LEN;
+		msg->id = MSG_ID_NR_MSG_INQ;
 		return;
 	} else if( strcmp( ( const char * ) "inq", ( const char * ) msg->argument ) == 0 ){
 		msg->id = MSG_ID_UNPROC_MSG;

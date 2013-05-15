@@ -29,7 +29,7 @@ void infoCliHandler( message *msg );
 
 #define MSG_ID_TEMPERATURE	1
 #define MSG_ID_UPTIME		2
-#define MSG_ID_QUEUE_LEN	3
+#define MSG_ID_NR_MSG_INQ	3
 #define MSG_ID_UNPROC_MSG	4
 #define MSG_ID_ERROR		5
 

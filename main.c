@@ -105,7 +105,7 @@ int main( void ){
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void timerA0ISR( void )
 {
-	timerCount = ( timerCount + 1 ) % 32;
+	timerCount = ( timerCount + 1 ) % 16;
 	if ( timerCount == 0 ) {
 		if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
 			mainMessage->source = MSG_U_MAIN;
@@ -117,9 +117,9 @@ __interrupt void timerA0ISR( void )
 		} else {
 			ledToggle( MSG_ID_LED_RED );
 		}
+
 	}
 	scheduler();
-
 }
 
 
