@@ -33,13 +33,13 @@ message *cliMsg;
 
 void initCli(){
 	cliTask.handler = &cliHandler;
-	cliTask.user = MSG_U_CLI;
+	cliTask.user = cli_user;
 	cliTask.cmdName = cliCmd;
 	registerTask( &cliTask );
 
-	if( getFreeMessage( &cliMsg ) == QUEUE_OK ){
-		cliMsg->destination = MSG_U_COM_UART;
-		cliMsg->source = MSG_U_CLI;
+	if( getFreeMessage( &cliMsg ) == queue_ok ){
+		cliMsg->destination = com_uart_user;
+		cliMsg->source = cli_user;
 		cliMsg->id = MSG_ID_P_PROMPT;
 		cliMsg->argument = cliPrompt;
 		putMessage( cliMsg );
@@ -52,9 +52,9 @@ void cliHandler( message *msg ){
 	task *tsk;
 	int pos = 0;
 
-	msg->processed = MSG_PROCESSED;
+	msg->status = processed_status;
 
-	if( msg->source == MSG_U_COM_UART ){
+	if( msg->source == com_uart_user ){
 		loc = ( unsigned char* )strchr( ( const char* )msg->argument,' ' );
 		if( loc == NULL ){
 			pos = strlen( ( const char* )msg->argument );
@@ -66,46 +66,42 @@ void cliHandler( message *msg ){
 		if( tsk == NULL ){
 			//No matching task found
 			//TODO add entry to error list
-			if( getFreeMessage( &cliMsg ) == QUEUE_OK ){
-				cliMsg->destination = MSG_U_CLI;
-				cliMsg->source = MSG_U_CLI;
-				cliMsg->id = MSG_ID_P_PROMPT;
+			if( getFreeMessage( &cliMsg ) == queue_ok ){
+				cliMsg->argument = cliTaskNotFound;
+				cliMsg->destination = com_uart_user;
+				cliMsg->source = cli_user;
+				cliMsg->id = MSG_ID_PRINT_NL_ARG;
 				putMessage( cliMsg );
 			}
 
-			if( getFreeMessage( &cliMsg ) == QUEUE_OK ){
-				cliMsg->argument = cliTaskNotFound;
-				cliMsg->destination = MSG_U_COM_UART;
-				cliMsg->source = MSG_U_CLI;
-				cliMsg->id = MSG_ID_PRINT_NL_ARG;
-				cliMsg->processed = MSG_UNPROCESSED;
+			if( getFreeMessage( &cliMsg ) == queue_ok ){
+				cliMsg->destination = cli_user;
+				cliMsg->source = cli_user;
+				cliMsg->id = MSG_ID_P_PROMPT;
 				putMessage( cliMsg );
 			}
-			msg->processed = MSG_PROCESSED;
 			return;
 		}
-		//recycle current message
+
 		loc = msg->argument+pos+1;
-		msg->processed = MSG_PROCESSED;
-		if( getFreeMessage( &cliMsg ) == QUEUE_OK ){
+		if( getFreeMessage( &cliMsg ) == queue_ok ){
 			cliMsg->argument = loc;
 			cliMsg->destination = tsk->user;
-			cliMsg->source = MSG_U_CLI;
-			cliMsg->processed = MSG_UNPROCESSED;
+			cliMsg->source = cli_user;
 			putMessage( cliMsg );
 		}
 	} else if( msg->id == MSG_ID_TASK_END || msg->id == MSG_ID_P_PROMPT ){
-		if( getFreeMessage( &cliMsg ) == QUEUE_OK ){
-			cliMsg->destination = MSG_U_COM_UART;
-			cliMsg->source = MSG_U_CLI;
+		if( getFreeMessage( &cliMsg ) == queue_ok ){
+			cliMsg->destination = com_uart_user;
+			cliMsg->source = cli_user;
 			cliMsg->id = MSG_ID_PRINT_NL_ARG;
 			cliMsg->argument = cliPrompt;
 			putMessage( cliMsg );
 		}
 	} else {
-		if( getFreeMessage( &cliMsg ) == QUEUE_OK ){
-			cliMsg->destination = MSG_U_COM_UART;
-			cliMsg->source = MSG_U_CLI;
+		if( getFreeMessage( &cliMsg ) == queue_ok ){
+			cliMsg->destination = com_uart_user;
+			cliMsg->source = cli_user;
 			cliMsg->id = MSG_ID_PRINT_NL_ARG;
 			cliMsg->argument = cliPrompt;
 			putMessage( cliMsg );

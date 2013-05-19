@@ -36,7 +36,7 @@ unsigned char ledOk[] = "Done";
 void initLed(){
 
 	ledTask.cmdName = cmdNameLed;
-	ledTask.user = MSG_U_LED;
+	ledTask.user = led_user;
 	ledTask.handler = &ledHandler;
 	registerTask( &ledTask );
 
@@ -46,20 +46,20 @@ void initLed(){
 
 void ledHandler( message *msg ){
 
-	if( msg->source == MSG_U_CLI ){
+	msg->status = processed_status;
+
+	if( msg->source == cli_user ){
 		ledCliHandler( msg );
 		return;
 	}
 
-	if( msg->event == MSG_EVT_OFF ){
+	if( msg->event == off_event ){
 		ledOff( msg->id );
-	} else if( msg->event == MSG_EVT_ON ){
+	} else if( msg->event == on_event ){
 		ledOn( msg->id );
-	} else if( msg->event == MSG_EVT_TOGGLE ){
+	} else if( msg->event == toggle_event ){
 		ledToggle( msg->id );
 	}
-
-	msg->processed = MSG_PROCESSED;
 }
 
 void ledCliHandler( message *msg ){
@@ -69,28 +69,28 @@ void ledCliHandler( message *msg ){
 	if( strcmp( ( const char * ) "on", ( const char * ) msg->argument ) == 0 ){
 		ledOn( MSG_ID_LED_BOTH );
 		arg = ledOk;
-
 	} else if( strcmp( ( const char * ) "off", ( const char * ) msg->argument ) == 0 ){
 		ledOff( MSG_ID_LED_BOTH );
+		arg = ledOk;
+	} else if( strcmp( ( const char * ) "toggle", ( const char * ) msg->argument ) == 0 ){
+		ledToggle( MSG_ID_LED_BOTH );
 		arg = ledOk;
 	} else {
 		arg = ledError;
 	}
 
-	if ( getFreeMessage( &ledMsg ) == QUEUE_OK ){
+	if ( getFreeMessage( &ledMsg ) == queue_ok ){
 		ledMsg->id = MSG_ID_PRINT_NL_ARG;
-		ledMsg->source = MSG_U_LED;
-		ledMsg->destination = MSG_U_COM_UART;
-		ledMsg->processed = MSG_UNPROCESSED;
+		ledMsg->source = led_user;
+		ledMsg->destination = com_uart_user;
 		ledMsg->argument = arg;
 		putMessage( ledMsg );
 	}
 
-	if ( getFreeMessage( &ledMsg ) == QUEUE_OK ){
+	if ( getFreeMessage( &ledMsg ) == queue_ok ){
 		ledMsg->id = MSG_ID_TASK_END;
-		ledMsg->source = MSG_U_LED;
-		ledMsg->destination = MSG_U_CLI;
-		ledMsg->processed = MSG_UNPROCESSED;
+		ledMsg->source = led_user;
+		ledMsg->destination = cli_user;
 		putMessage( ledMsg );
 	}
 }

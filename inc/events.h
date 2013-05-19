@@ -22,10 +22,13 @@
 
 //message queue events
 
-//#define MSG_EVT_UNDEF       0
-#define MSG_EVT_ON          1
-#define MSG_EVT_OFF         2
-#define MSG_EVT_TOGGLE      3
-#define MSG_EVT_ECHO		4
+
+typedef enum{
+	on_event 		= 0,
+	off_event		= 1,
+	toggle_event	= 2,
+	echo_event		= 3,
+	undef_event 	= 4
+} MESSAGE_Q_EVENTS;
 
 #endif

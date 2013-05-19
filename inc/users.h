@@ -23,11 +23,14 @@
 //Message queue users
 //#define MSG_U_UNDEF		0
 // Already defined in OS
-#define MSG_U_LED       1
-#define MSG_U_BUTTON    2
-#define MSG_U_MAIN      3
-#define MSG_U_COM_UART  4
-#define MSG_U_CLI		5
-#define MSG_U_INFO		6
+typedef enum {
+	led_user = 0,
+	button_user,
+	main_user,
+	com_uart_user,
+	cli_user,
+	info_user,
+	undef_user
+} MESSAGE_Q_USERS;
 
 #endif

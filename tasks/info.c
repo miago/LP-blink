@@ -37,7 +37,7 @@ char * infoStrPtr;
 void initInfo( void ){
 	infoTask.cmdName = infoCmd;
 	infoTask.handler = &infoHandler;
-	infoTask.user = MSG_U_INFO;
+	infoTask.user = info_user;
 
 	registerTask( &infoTask );
 
@@ -46,7 +46,9 @@ void initInfo( void ){
 void infoHandler( message *msg ){
 	int a;
 
-	if( msg->source == MSG_U_CLI ){
+	msg->status = processed_status;
+
+	if( msg->source == cli_user ){
 		infoCliHandler( msg );
 	}
 
@@ -65,29 +67,26 @@ void infoHandler( message *msg ){
 	}
 
 
-	if ( getFreeMessage( &infoMsg ) == QUEUE_OK ){
-		infoMsg->source = MSG_U_INFO;
-		infoMsg->destination = MSG_U_COM_UART;
+	if ( getFreeMessage( &infoMsg ) == queue_ok ){
+		infoMsg->source = info_user;
+		infoMsg->destination = com_uart_user;
 		infoMsg->id = MSG_ID_PRINT_NL_ARG;
-		infoMsg->processed = MSG_UNPROCESSED;
 		infoMsg->argument = infoStr;
 		putMessage( infoMsg );
 	}
 
-	msg->processed = MSG_PROCESSED;
 
-	if ( getFreeMessage( &infoMsg ) == QUEUE_OK ){
-		infoMsg->source = MSG_U_INFO;
-		infoMsg->destination = MSG_U_CLI;
+	if ( getFreeMessage( &infoMsg ) == queue_ok ){
+		infoMsg->source = info_user;
+		infoMsg->destination = cli_user;
 		infoMsg->id = MSG_ID_TASK_END;
-		infoMsg->processed = MSG_UNPROCESSED;
 		putMessage( infoMsg );
 	}
 
 }
 
 void printTemperature( void ){
-	strcpy( ( char * ) infoStr, ( const char * ) "non yet implemented!\0" );
+	strcpy( ( char * ) infoStr, ( const char * ) "not implemented" );
 }
 
 void infoCliHandler( message *msg ){

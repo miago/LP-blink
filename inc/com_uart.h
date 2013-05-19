@@ -31,6 +31,8 @@
 #define MSG_ID_PRINT_NL_ARG	3
 
 #define ENTER_CHAR		13
+#define BS_CHAR			8
+#define SPACE_CHAR		32
 
 void initComUart();
 

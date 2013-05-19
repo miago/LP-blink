@@ -31,7 +31,7 @@ message *buttonMessage;
 unsigned char buttonCmd[] = "button";
 
 void initButton(){
-	buttonTask.user = MSG_U_BUTTON;
+	buttonTask.user = button_user;
 	buttonTask.handler = &buttonHandler;
 	buttonTask.cmdName = buttonCmd;
 	registerTask( &buttonTask );
@@ -52,19 +52,18 @@ __interrupt void Port_1( void )
 	P1IES ^= BIT3;
 	P1IFG &= ~BIT3; // P1.3 IFG cleared
 
-	if( getFreeMessage( &buttonMessage ) == QUEUE_OK ){
+	if( getFreeMessage( &buttonMessage ) == queue_ok ){
 
-		buttonMessage->source = MSG_U_BUTTON;
-		buttonMessage->destination = MSG_U_COM_UART;
+		buttonMessage->source = button_user;
+		buttonMessage->destination = com_uart_user;
 		buttonMessage->id = MSG_ID_BUTTON;
 
 		if( ( P1IN & BUTTON ) == 0x00 ){
-			buttonMessage->event = MSG_EVT_ON;
+			buttonMessage->event = on_event;
 		} else {
-			buttonMessage->event = MSG_EVT_OFF;
+			buttonMessage->event = off_event;
 		}
 
-		buttonMessage->processed = MSG_UNPROCESSED;
 		putMessage( buttonMessage );
 	}
 }

@@ -46,7 +46,7 @@ unsigned char comUartCmd[] = "comUart";
 
 void initComUart(){
 
-	uartMessage.source = MSG_U_COM_UART;
+	uartMessage.source = com_uart_user;
 
 	UCA0CTL1 = UCSWRST;							//RESET
 	UCA0CTL1 |= UCSSEL_2;                     // SMCLK
@@ -66,7 +66,7 @@ void initComUart(){
 
 	//UCA0TXBUF = 0x35;
 
-	comUartTask.user = MSG_U_COM_UART;
+	comUartTask.user = com_uart_user;
 	comUartTask.handler = &comUartHandler;
 	comUartTask.cmdName = comUartCmd;
 
@@ -91,21 +91,21 @@ void comUartPutS( const char *str )
 }
 
 void comUartHandler( message *msg ){
-	msg->processed = MSG_PROCESSED;
+	msg->status = processed_status;
 	if( msg->id == MSG_ID_PRINT_NL_ARG ){
 		comUartPutS( ( const char *) "\n\r" );
 		comUartPutS( ( const char *) msg->argument );
 	} else if( msg->id == MSG_ID_PRINT_ARG ){
 		comUartPutS( ( const char *) msg->argument );
-	} else if( msg->source == MSG_U_MAIN ){
+	} else if( msg->source == main_user ){
 		if( msg->id == MSG_ID_UART_WELCOME ){
 			comUartPutS( ( char *)"\n\rHello master, what would you like to do today?\n\r");
 
 			return;
 		}
-	} else if( msg->source == MSG_U_BUTTON ) {
+	} else if( msg->source == button_user ) {
 		if( msg->id == MSG_ID_BUTTON ){
-			if ( msg->event == MSG_EVT_ON ) {
+			if ( msg->event == on_event ) {
 				comUartPutS( ( char *)"\n\rButton Pressed");
 			} else {
 				comUartPutS( ( char *)"\n\rButton Released");
@@ -113,8 +113,8 @@ void comUartHandler( message *msg ){
 
 			return;
 		}
-	} else if( msg->source == MSG_U_COM_UART ){
-		if( msg->event == MSG_EVT_ECHO ){
+	} else if( msg->source == com_uart_user ){
+		if( msg->event == echo_event ){
 			comUartPutC((unsigned char) msg->id);
 		}
 	} else if( msg->id == MSG_ID_UART_ERROR ){
@@ -137,27 +137,47 @@ __interrupt void comUartRxISR( void )
 		rxBuffer[rxBufferPointer] = '\0';
 		rxBufferPointer = 0;
 
-		if( getFreeMessage( &eMessage ) == QUEUE_OK ){
-			eMessage->source = MSG_U_COM_UART;
-			eMessage->destination = MSG_U_CLI;
-			eMessage->processed = MSG_UNPROCESSED;
+		if( getFreeMessage( &eMessage ) == queue_ok ){
+			eMessage->source = com_uart_user;
+			eMessage->destination = cli_user;
 			eMessage->argument = rxArgBuffer;
 			strcpy( ( char * ) eMessage->argument, ( const char * ) rxBuffer );
 			putMessage( eMessage );
 		}
-	} else{
-		if( rxBufferPointer < ( COM_UART_RX_BUFFER_SIZE - 2 ) ){
-			rxBuffer[rxBufferPointer] = rx_byte;
+	} else if( rxBufferPointer < ( COM_UART_RX_BUFFER_SIZE - 2 ) ){
+		rxBuffer[rxBufferPointer] = rx_byte;
+		if( rx_byte == BS_CHAR ){
+			if(rxBufferPointer != 0){
+				rxBufferPointer--;
+				if( getFreeMessage( &eMessage ) == queue_ok ){
+					eMessage->destination = com_uart_user;
+					eMessage->source = com_uart_user;
+					eMessage->event = echo_event;
+					eMessage->id = (int) rx_byte;
+					putMessage( eMessage );
+				}
+				if( getFreeMessage( &eMessage ) == queue_ok ){
+					eMessage->destination = com_uart_user;
+					eMessage->source = com_uart_user;
+					eMessage->event = echo_event;
+					eMessage->id = (int) SPACE_CHAR;
+					putMessage( eMessage );
+				}
+			}
+		} else {
 			rxBufferPointer++;
+		}
 
-			//echo
-			if( getFreeMessage( &eMessage ) == QUEUE_OK ){
-				eMessage->destination = MSG_U_COM_UART;
-				eMessage->source = MSG_U_COM_UART;
-				eMessage->event = MSG_EVT_ECHO;
+		//echo
+		if( rxBufferPointer != 0 ){
+			if( getFreeMessage( &eMessage ) == queue_ok ){
+				eMessage->destination = com_uart_user;
+				eMessage->source = com_uart_user;
+				eMessage->event = echo_event;
 				eMessage->id = (int) rx_byte;
 				putMessage( eMessage );
 			}
 		}
 	}
+
 }

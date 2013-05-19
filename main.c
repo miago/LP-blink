@@ -54,35 +54,34 @@ int main( void ){
 	initButton();
 	initLed();
 	initComUart();
-	initCli();
+
 	initInfo();
 
 	mainTask.cmdName = cmdNameMain;
-	mainTask.user = MSG_U_MAIN;
+	mainTask.user = main_user;
 	mainTask.handler = &mainHandler;
 	registerTask( &mainTask );
 
 	setDCOCLK( DCO_1M );
 	setSMCLK( SMCLK_DCO, CLK_DIV_1 );
 
-
-	if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
-		mainMessage->source = MSG_U_MAIN;
-		mainMessage->destination = MSG_U_LED;
+	if( getFreeMessage( &mainMessage ) == queue_ok ){
+		mainMessage->source = main_user;
+		mainMessage->destination = led_user;
 		mainMessage->id = MSG_ID_LED_GREEN;
-		mainMessage->priority = MSG_P_UNDEF;
-		mainMessage->event = MSG_EVT_ON;
-		mainMessage->processed = MSG_UNPROCESSED;
+		mainMessage->priority = normal_priority;
+		mainMessage->event = undef_event;
 		putMessage( mainMessage );
 	}
 
-	if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
-		mainMessage->destination = MSG_U_COM_UART;
-		mainMessage->source = MSG_U_MAIN;
+	if( getFreeMessage( &mainMessage ) == queue_ok){
+		mainMessage->destination = com_uart_user;
+		mainMessage->source = main_user;
 		mainMessage->id = MSG_ID_UART_WELCOME;
-		mainMessage->processed = MSG_UNPROCESSED;
 		putMessage( mainMessage );
 	}
+
+	initCli();
 
 	enableTimerA0CCInterrupt();
 	setTimerA0Mode( TAMODE_CONT );
@@ -107,12 +106,11 @@ __interrupt void timerA0ISR( void )
 {
 	timerCount = ( timerCount + 1 ) % 16;
 	if ( timerCount == 0 ) {
-		if( getFreeMessage( &mainMessage ) == QUEUE_OK ){
-			mainMessage->source = MSG_U_MAIN;
-			mainMessage->destination = MSG_U_LED;
+		if( getFreeMessage( &mainMessage ) == queue_ok ){
+			mainMessage->source = main_user;
+			mainMessage->destination = led_user;
 			mainMessage->id = MSG_ID_LED_GREEN;
-			mainMessage->event = MSG_EVT_TOGGLE;
-			mainMessage->processed = MSG_UNPROCESSED;
+			mainMessage->event = toggle_event;
 			putMessage( mainMessage );
 		} else {
 			ledToggle( MSG_ID_LED_RED );

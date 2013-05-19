@@ -34,5 +34,4 @@ void infoCliHandler( message *msg );
 #define MSG_ID_ERROR		5
 
 
-
 #endif
