@@ -122,7 +122,13 @@ void comUartHandler( message *msg ){
 	}
 }
 
-// Timer A0 interrupt service routine
+
+#pragma vector=USCIAB0TX_VECTOR
+__interrupt void comUartTxISR( void ){
+
+}
+
+// UART RX interrupt service routine
 #pragma vector=USCIAB0RX_VECTOR
 __interrupt void comUartRxISR( void )
 {
